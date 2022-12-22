@@ -7,11 +7,13 @@
 
 import UIKit
 
+extension NSNotification.Name {
+    static let addPerson = NSNotification.Name("addPerson");
+}
+
 class ViewController: UIViewController {
 
     @IBOutlet weak var tableView: UITableView!
-    
-    var addViewController: AddViewController?
     
     var persons:[Person] = []
     
@@ -19,20 +21,28 @@ class ViewController: UIViewController {
         super.viewDidLoad()
         tableView.delegate = self
         tableView.dataSource = self
+        
+        NotificationCenter.default.addObserver(self,selector:#selector(updatePersons(_:)),name: .addPerson,object: nil)
     }
+    
+    deinit {
+     NotificationCenter.default.removeObserver(self, name:.addPerson, object: nil)
+    }
+    
+    
+    @objc func updatePersons(_ notification: Notification){
+        if let person = notification.userInfo?["person"] as? Person {
+            persons.append(person)
+            tableView.reloadData()
+            }
+    }
+
+    
 
     @IBAction func addButton(_ sender: Any) {
         let storyboard = UIStoryboard(name: "Main", bundle: nil)
         let goVC = storyboard.instantiateViewController(withIdentifier: "addVC") as! AddViewController
-        goVC.delegate = self
         navigationController?.pushViewController(goVC, animated: true)
-    }
-}
-
-extension ViewController: AddViewControllerDelegate{
-    func addPerson(person: Person) {
-        persons.append(person)
-        tableView.reloadData()
     }
 }
 

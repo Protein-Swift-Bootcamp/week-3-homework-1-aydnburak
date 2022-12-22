@@ -7,13 +7,7 @@
 
 import UIKit
 
-protocol AddViewControllerDelegate {
-    func addPerson(person:Person)
-}
-
 class AddViewController: UIViewController {
-    
-    var delegate: AddViewControllerDelegate?
 
     @IBOutlet weak var nameTextField: UITextField!
     
@@ -25,12 +19,19 @@ class AddViewController: UIViewController {
         super.viewDidLoad()
     }
     
+    deinit {
+        print("Clear AddViewController")
+    }
+    
     @IBAction func addButton(_ sender: Any) {
         let name = nameTextField.text ?? ""
         let surname = surnameTextField.text ?? ""
         let phone = phoneTextField.text ?? ""
         let person = Person(name: name, surName: surname, phone: phone)
-        delegate?.addPerson(person: person)
+        let userInfo:[String: Person] = ["person": person]
+        
+        NotificationCenter.default.post(name:.addPerson,object: nil,userInfo: userInfo)
+        
         navigationController?.popViewController(animated: true)
     }
     
